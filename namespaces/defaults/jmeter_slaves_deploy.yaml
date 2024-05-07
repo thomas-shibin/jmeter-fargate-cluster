@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmeter-slaves
+  labels:
+    jmeter_mode: slave
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      jmeter_mode: slave
+        #      app: jmeter
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        jmeter_mode: slave
+        project: benchmark-manager
+    spec:
+      containers:
+      - name: jmslave
+        image: thomasshibin09/jmeter-slave:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 1099
+        - containerPort: 50000
+        env:
+        - name: HEAP
+          value: "-Xms1G -Xmx12G"
+        resources:
+          limits:
+            cpu: 8000m
+            memory: 12Gi
+          requests:
+            cpu: 6000m
+            memory: 6Gi
+      terminationGracePeriodSeconds: 300
